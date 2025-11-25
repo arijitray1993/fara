@@ -32,6 +32,7 @@ dependencies = [
     "pyyaml",
     "jsonschema",
     "browserbase",
+    "vllm==0.10.0"
 ]
 
 [project.urls]

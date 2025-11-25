@@ -155,28 +155,11 @@ That's it! No GPU or model downloads required.
 
 If you have access to GPU resources, you can self-host Fara-7B using VLLM. This requires a GPU machine with sufficient VRAM.
 
-First, download the Fara-7B model weights from HuggingFace using the provided script:
+All that is required is to run the following command to start the VLLM server:
 
 ```bash
-# Install huggingface_hub if not already installed
-pip install -U huggingface_hub
-
-# optional, login to HuggingFace CLI 
-huggingface-cli login
-
-# Download the model (will be saved to model_checkpoints/fara-7b)
-python scripts/download_model.py --output-dir ./model_checkpoints --token YOUR_HF_TOKEN
+vllm serve "microsoft/Fara-7B" --port 5000 --dtype auto 
 ```
-
-The script will download the model to `model_checkpoints/fara-7b/` by default. You can also download manually from [HuggingFace](https://huggingface.co/microsoft/fara-7b).
-
-Second, host the model locally on a GPU machine:
-
-```bash
-python az_vllm.py --model_url /path/to/model_checkpoints/ --device_id 0,1
-```
-
-This defaults to port 5000. We recommend hosting across multiple devices depending on GPU count and memory: `--device_id 0,1`.
 
 ### Testing the Fara Agent
 

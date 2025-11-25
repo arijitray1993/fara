@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_ENDPOINT_CONFIG = {
-    "model": "Fara-7B",
+    "model": "microsoft/Fara-7B",
     "base_url": "http://localhost:5000/v1",
     "api_key": "not-needed",
 }

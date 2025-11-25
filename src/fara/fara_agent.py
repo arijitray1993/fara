@@ -6,7 +6,6 @@ import ast
 import io
 import os
 import base64
-import time
 from PIL import Image
 from typing import List, Tuple, Dict
 from urllib.parse import quote_plus
@@ -26,9 +25,9 @@ from .types import (
     ModelResponse,
     FunctionCall,
     message_to_openai_format,
-    WebSurferEvent
+    WebSurferEvent,
 )
-from .utils import strip_url_query, get_trimmed_url
+from .utils import get_trimmed_url
 
 
 class FaraAgent:
@@ -337,7 +336,10 @@ class FaraAgent:
             if is_first_round and self.save_screenshots:
                 _ = await self._playwright_controller.get_screenshot(
                     self._page,
-                    path=os.path.join(self.downloads_folder, f"screenshot{len(self._action_history)}.png"),
+                    path=os.path.join(
+                        self.downloads_folder,
+                        f"screenshot{len(self._action_history)}.png",
+                    ),
                 )
 
             function_call, raw_response = await self.generate_model_call(is_first_round)
@@ -582,7 +584,9 @@ class FaraAgent:
         if self.save_screenshots:
             new_screenshot = await self._playwright_controller.get_screenshot(
                 self._page,
-                path=os.path.join(self.downloads_folder, f"screenshot{len(self._action_history)}.png"),
+                path=os.path.join(
+                    self.downloads_folder, f"screenshot{len(self._action_history)}.png"
+                ),
             )
         else:
             new_screenshot = await self._playwright_controller.get_screenshot(
