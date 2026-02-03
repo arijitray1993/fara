@@ -350,6 +350,44 @@ python om2w.py --model_endpoint ../../endpoint_configs/ --eval_oai_config ../end
 - Avoid overloading a single vLLM deployment with more than ~10 concurrent processes due to known issues
 - See debugging output in `fara/webeval/scripts/stdout.txt`
 
+### Troubleshooting GPU Configuration
+
+When running evaluations with specific GPU indices (e.g., `--device_id 3,4`), you may encounter the following issues:
+
+**1. P2P Access Check Failures**
+
+If you see errors like:
+```
+RuntimeError: Error happened when batch testing peer-to-peer access from (0, 0, 1, 1) to (0, 1, 0, 1)
+RuntimeError: CUDART error: CUDA-capable device(s) is/are busy or unavailable
+```
+
+This occurs because vLLM's custom all-reduce P2P check doesn't properly handle non-zero GPU indices. The fix is already included in the codebase (`--disable-custom-all-reduce` flag in `src/fara/vllm/vllm_facade.py`).
+
+If the issue persists, try deleting the corrupted P2P cache file:
+```bash
+rm -f ~/.cache/vllm/gpu_p2p_access_cache_for_*.json
+```
+
+**2. CUDA_HOME Not Found (flashinfer JIT compilation)**
+
+If you see:
+```
+RuntimeError: Could not find nvcc and default cuda_home='/usr/local/cuda' doesn't exist
+```
+
+This occurs when flashinfer needs to JIT-compile CUDA kernels but can't find the CUDA installation. The fix is already included in the codebase (`CUDA_HOME` is automatically set in `src/fara/vllm/vllm_facade.py`).
+
+If you're on a cluster with module-based CUDA, ensure CUDA is loaded before running:
+```bash
+module load cuda/12.2  # or your appropriate CUDA version
+```
+
+Or manually set the environment variable:
+```bash
+export CUDA_HOME=/path/to/your/cuda/installation
+```
+
 ---
 
 ## Analyzing Evaluation Results

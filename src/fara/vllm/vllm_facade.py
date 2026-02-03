@@ -24,6 +24,7 @@ class VLLM:
             "--gpu-memory-utilization 0.95",
             "--trust-remote-code",
             "--dtype {dtype}",
+            "--disable-custom-all-reduce",  # Avoid P2P access check issues with non-zero GPU indices
         ]
     )
 
@@ -73,6 +74,14 @@ class VLLM:
         env = os.environ.copy()
         env["CUDA_VISIBLE_DEVICES"] = self.device_id
         env["NCCL_DEBUG"] = "TRACE"
+        # Disable custom all-reduce to avoid P2P access check issues with non-zero GPU indices
+        env["VLLM_DISABLE_CUSTOM_ALL_REDUCE"] = "1"
+        # Set CUDA_HOME for flashinfer JIT compilation if not already set
+        if "CUDA_HOME" not in env:
+            cuda_home = "/share/pkg.8/cuda/12.2/install"
+            if os.path.exists(cuda_home):
+                env["CUDA_HOME"] = cuda_home
+                env["PATH"] = f"{cuda_home}/bin:{env.get('PATH', '')}"
         self.process = subprocess.Popen(
             self.cmd.format(
                 host=self.host,
